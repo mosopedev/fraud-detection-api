@@ -9,20 +9,16 @@ from app.services.couchbase import CouchbaseService
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 import json
 
-
-# Fraud Prediction Map Function
 class FraudPrediction(MapFunction):
     def __init__(self, model_path):
         self.model_path = model_path
         self.model = None
 
     def open(self, runtime_context):
-        # Load the ML model
         self.model = joblib.load(self.model_path)
 
     def map(self, value):
         try:
-        # Parse transaction data from Kafka
             transaction = json.loads(value)
             data = pd.DataFrame([transaction])
 
@@ -76,7 +72,7 @@ def fraud_detection_pipeline():
     env.add_jars("file:///Users/mosope/Desktop/fraud-detection-api/flink-sql-connector-kafka-3.3.0-1.20.jar")
 
     # Enable checkpointing for fault tolerance
-    env.enable_checkpointing(5000)  # Checkpoints every 5 seconds
+    env.enable_checkpointing(5000)
     checkpoint_config = env.get_checkpoint_config()
     checkpoint_config.set_fail_on_checkpointing_errors(False)
     checkpoint_config.set_checkpoint_timeout(60000)
@@ -89,7 +85,6 @@ def fraud_detection_pipeline():
     # set flink parallel nodes
     env.set_parallelism(4)
 
-    # Kafka consumer for transactions
     kafka_props = {
         "bootstrap.servers": "localhost:9092",
         "group.id": "fraud-detection-group"
@@ -101,10 +96,8 @@ def fraud_detection_pipeline():
         properties=kafka_props
     )
 
-    # Add Kafka as a source to Flink pipeline
     transaction_stream = env.add_source(kafka_consumer)
 
-    # Process transaction-Run flink job
     predicted_stream = transaction_stream.map(FraudPrediction("lg_fraud_detection_model.pkl"))
 
     env.execute("Fraud Detection with Kafka, Flink, and Couchbase")

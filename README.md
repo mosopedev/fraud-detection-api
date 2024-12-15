@@ -8,6 +8,10 @@ This project demonstrates a **Fraud Detection System** using real-time processin
 - **Kafka Producer**: Simulates real-world transaction streams by sending transaction data to Kafka.
 - **Flink Service**: Processes transactions in real time, predicts fraud, and ensures fault tolerance with checkpointing. Stores processed results in Couchbase.
  -->
+ ## Prerequisites
+Ensure the following are installed on your system:
+- **Python 3.11.5 **
+- **Kafka and Zookeeper**
 
 
 ## Installation
